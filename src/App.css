@@ -18,6 +18,7 @@ body {
 }
 
 main {
+  margin-top: 30px;
   padding: 15px;
   display: grid;
   grid-template-columns: 1fr 3fr;
@@ -47,11 +48,12 @@ form > label {
 }
 
 form > input {
-  padding: 4px;
+  padding: 5px;
   margin-bottom: 12px;
   outline: none;
-  font-size: 14px;
+  font-size: 16px;
   color: blueviolet;
+  border-radius: 5px;
 }
 
 form > input[type="submit"] {
@@ -60,6 +62,7 @@ form > input[type="submit"] {
   font-weight: bold;
   font-size: 15px;
   border-radius: 5px;
+  background: gainsboro;
 }
 form > input[type="submit"]:hover {
   background: blueviolet;
