@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import firebaseConfigApp from "./config/firebase-config";
-import { getFirestore, addDoc, collection, getDocs } from "firebase/firestore";
+import { getFirestore, addDoc, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import Swal from "sweetalert2";
 import { InfinitySpin } from "react-loader-spinner";
+import { FaRegEdit } from "react-icons/fa";
+import { MdOutlineDelete } from "react-icons/md";
+
 
 //Firebase db connection
 const db = getFirestore(firebaseConfigApp);
@@ -58,6 +61,7 @@ const App = () => {
       querySnapshot.forEach((doc) => {
         // console.log(`${doc.id} => ${doc.data()}`)
         const document = doc.data();
+        document.uid = doc.id //also adding id with object for use in edit or delete data
         temp.push(document);
       });
       setEmployeesData(temp);
@@ -71,6 +75,18 @@ const App = () => {
   useEffect(() => {
     readDataFromDB();
   }, []);
+
+  //! Delete Employee from Firebase
+  const deleteEmployee = async (uid) => {
+    try {
+      const ref = doc(db, "employees", uid);
+      await deleteDoc(ref)
+      readDataFromDB()
+
+    } catch (error) {
+      console.log(`Failed to Delete Data from DB, Error => ${error.message}`);
+    }
+  }
 
   return (
     <div>
@@ -135,6 +151,7 @@ const App = () => {
                 <th>Employee Name</th>
                 <th>Salary</th>
                 <th>Joining Date</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -144,6 +161,10 @@ const App = () => {
                   <td>{item.employeeName}</td>
                   <td>{item.salary}</td>
                   <td>{item.joiningDate}</td>
+                  <td>
+                      <button id="edit-btn"><FaRegEdit /></button>
+                      <button id="delete-btn" onClick={()=>deleteEmployee(item.uid)}><MdOutlineDelete /></button>
+                  </td>
                 </tr>
               ))}
             </tbody>

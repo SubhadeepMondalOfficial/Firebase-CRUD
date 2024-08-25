@@ -103,3 +103,36 @@ table > tbody {
 table > tbody > tr > td {
   padding: 4px;
 }
+
+table > tbody > tr > td:last-child{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+#edit-btn{
+  background: blueviolet;
+  color: white;
+  border-radius: 100%;
+  padding: 6px;
+  font-size: 18px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+#delete-btn {
+  background: red;
+  color: white;
+  border-radius: 100%;
+  padding: 6px;
+  font-size: 18px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
