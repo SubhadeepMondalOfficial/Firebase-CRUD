@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import firebaseConfigApp from "./config/firebase-config";
-import { getFirestore, addDoc, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import {
+  getFirestore,
+  addDoc,
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import Swal from "sweetalert2";
 import { InfinitySpin } from "react-loader-spinner";
 import { FaRegEdit } from "react-icons/fa";
 import { MdOutlineDelete } from "react-icons/md";
-
 
 //Firebase db connection
 const db = getFirestore(firebaseConfigApp);
@@ -19,6 +26,7 @@ const App = () => {
   };
   const [formData, setFormData] = useState(model);
   const [employeesData, setEmployeesData] = useState([]);
+  const [editEmployee, setEditEmployee] = useState(null);
   const [loader, setLoader] = useState(false);
 
   function handleFormData(event) {
@@ -42,7 +50,6 @@ const App = () => {
       readDataFromDB(); //refresh the employee list in UI
       setLoader(false);
       setFormData(model); //after successfully entry clear the form data
-
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -53,6 +60,12 @@ const App = () => {
     }
   };
 
+  const createEmployeeForm = (event) => {
+    event.preventDefault();
+    setEditEmployee(null);
+    setFormData(model);
+  };
+
   //! Read Data From Firebase
   const readDataFromDB = async () => {
     try {
@@ -61,12 +74,11 @@ const App = () => {
       querySnapshot.forEach((doc) => {
         // console.log(`${doc.id} => ${doc.data()}`)
         const document = doc.data();
-        document.uid = doc.id //also adding id with object for use in edit or delete data
+        document.uid = doc.id; //also adding id with object for use in edit or delete data
         temp.push(document);
       });
       setEmployeesData(temp);
-      console.log(temp);
-      
+
     } catch (error) {
       console.log("Failed to Fetch Data from DB, Error => ", error.message);
     }
@@ -76,17 +88,49 @@ const App = () => {
     readDataFromDB();
   }, []);
 
+  //! Edit Employee in Firebase
+  const editEmployeeHandler = (employee) => {
+    setEditEmployee(employee);
+    setFormData(employee);
+  };
+
+  const updateFormHandler = async (event) => {
+    try {
+      event.preventDefault();
+      setLoader(true);
+      const ref = doc(db, "employees", formData.uid);
+      await updateDoc(ref, formData);
+      Swal.fire({
+        icon: "success",
+        title: "Updated Successfully",
+        text: `Id: ${formData.uid}`,
+      });
+      setLoader(false);
+      readDataFromDB();
+      setFormData(model)
+      setEditEmployee(null)
+
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed to Update !!",
+        text: `Error => ${error.message}`,
+      });
+    } finally {
+      loader(false);
+    }
+  };
+
   //! Delete Employee from Firebase
   const deleteEmployee = async (uid) => {
     try {
       const ref = doc(db, "employees", uid);
-      await deleteDoc(ref)
-      readDataFromDB()
-
+      await deleteDoc(ref);
+      readDataFromDB();
     } catch (error) {
       console.log(`Failed to Delete Data from DB, Error => ${error.message}`);
     }
-  }
+  };
 
   return (
     <div>
@@ -96,7 +140,7 @@ const App = () => {
 
       <main>
         {/* Form to Create New or Update Employees */}
-        <form onSubmit={submitFormHandler}>
+        <form onSubmit={editEmployee ? updateFormHandler : submitFormHandler}>
           <label htmlFor="employeeName">Employee Name</label>
           <input
             type="text"
@@ -136,8 +180,21 @@ const App = () => {
                 ariaLabel="infinity-spin-loading"
               />
             </div>
+          ) : editEmployee ? (
+            <button type="submit">Update</button>
           ) : (
-            <button>Submit</button>
+            <button type="submit">Submit</button>
+          )}
+
+          {editEmployee ? (
+            <p>
+              Want to Add Employee?{" "}
+              <button type="button" onClick={createEmployeeForm}>
+                Create Now
+              </button>
+            </p>
+          ) : (
+            <p></p>
           )}
         </form>
 
@@ -162,8 +219,18 @@ const App = () => {
                   <td>{item.salary}</td>
                   <td>{item.joiningDate}</td>
                   <td>
-                      <button id="edit-btn"><FaRegEdit /></button>
-                      <button id="delete-btn" onClick={()=>deleteEmployee(item.uid)}><MdOutlineDelete /></button>
+                    <button
+                      id="edit-btn"
+                      onClick={() => editEmployeeHandler(item)}
+                    >
+                      <FaRegEdit />
+                    </button>
+                    <button
+                      id="delete-btn"
+                      onClick={() => deleteEmployee(item.uid)}
+                    >
+                      <MdOutlineDelete />
+                    </button>
                   </td>
                 </tr>
               ))}
