@@ -56,7 +56,7 @@ form > input {
   border-radius: 5px;
 }
 
-form > input[type="submit"] {
+form > button {
   margin-top: 10px;
   padding: 10px;
   font-weight: bold;
@@ -64,12 +64,18 @@ form > input[type="submit"] {
   border-radius: 5px;
   background: gainsboro;
 }
-form > input[type="submit"]:hover {
+form > button:hover {
   background: blueviolet;
   color: white;
   cursor: pointer;
   transition-duration: 200ms;
 }
+form > div {
+  margin-top: 10px;
+  display: block;
+  text-align: center;
+}
+
 
 /* Employees Details in Table  */
 aside > h3 {
